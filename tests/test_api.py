@@ -65,3 +65,19 @@ def test_supervision_roundtrip():
     tracked = to_supervision(np.array([[0, 0, 10, 10, 7]]))
     assert tracked.tracker_id.tolist() == [7]
     assert len(to_supervision(np.empty((0, 5)))) == 0
+
+
+def test_independent_trackers_have_independent_ids():
+    a = ARCTracker.from_preset("sportsmot", use_cmc=False)
+    b = ARCTracker.from_preset("sportsmot", use_cmc=False)
+    det = np.array([[100.0, 100.0, 150.0, 200.0, 0.9, 0]])
+    for _ in range(3):
+        ids_a = a.update(det)[:, 4].tolist()
+        ids_b = b.update(det)[:, 4].tolist()
+    assert ids_a == ids_b == [1.0]
+    # resetting one tracker must not affect the other's numbering
+    a.reset()
+    two = np.array([[100.0, 100.0, 150.0, 200.0, 0.9, 0], [400.0, 100.0, 450.0, 200.0, 0.9, 0]])
+    for _ in range(3):
+        ids_b = b.update(two)[:, 4].tolist()
+    assert sorted(ids_b) == [1.0, 2.0]

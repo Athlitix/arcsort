@@ -298,6 +298,9 @@ class ARCTracker:
         self.margins_needed = self.ambiguity_enabled or self.arbitration_enabled
 
         self.tracks: list[STrack] = []
+        # Per-tracker ID counter: independent trackers in one process
+        # (e.g. several cameras) must not share or reset each other's IDs
+        self._next_track_id = 0
         self.frame_count = 0
 
         logger.debug(
@@ -398,6 +401,7 @@ class ARCTracker:
         self.ambiguity_events = []
         self.arb_episodes = {}
         self.arbitration_swaps = []
+        self._next_track_id = 0
         reset_track_id()
 
     def pop_ambiguity_events(self) -> list[dict]:
@@ -889,6 +893,8 @@ class ARCTracker:
                     use_imm=self.use_imm,
                     imm_config=self.imm_config,
                 )
+                new_track.track_id = self._next_track_id
+                self._next_track_id += 1
                 # Initialize embedding for new track
                 if det_embs is not None:
                     new_track.update_emb(det_embs[det_idx], alpha=0.0)

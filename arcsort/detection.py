@@ -2,6 +2,8 @@
 
 Wraps multiple detection backends behind a common interface.
 All detectors return (N, 6) arrays with [x1, y1, x2, y2, conf, class_id].
+class_id (and the ``classes`` filter) always uses the contiguous 0-indexed
+COCO-80 convention of Ultralytics, so person = 0 for every backend.
 
 Supported backends:
     - ultralytics: YOLOv8/9/10/11, RT-DETR (default)
@@ -191,6 +193,27 @@ class YOLOXDetector:
         return dets
 
 
+# The 80 COCO category ids (1..90 with gaps) in order; position = contiguous index
+_COCO_CATEGORY_IDS = np.array(
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+     25, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49,
+     50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 67, 70, 72, 73, 74,
+     75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90]
+)
+_CATEGORY_TO_INDEX = np.full(_COCO_CATEGORY_IDS.max() + 1, -1, dtype=int)
+_CATEGORY_TO_INDEX[_COCO_CATEGORY_IDS] = np.arange(len(_COCO_CATEGORY_IDS))
+
+
+def coco_category_to_index(category_ids: np.ndarray) -> np.ndarray:
+    """Map COCO category ids (person = 1) to contiguous indices (person = 0).
+
+    Ids outside the 80 COCO categories map to -1.
+    """
+    cat = np.asarray(category_ids).astype(int)
+    valid = (cat >= 0) & (cat < len(_CATEGORY_TO_INDEX))
+    return np.where(valid, _CATEGORY_TO_INDEX[np.where(valid, cat, 0)], -1)
+
+
 class RFDETRDetector:
     """RF-DETR detector from Roboflow."""
 
@@ -213,17 +236,16 @@ class RFDETRDetector:
 
     def detect(self, frame: np.ndarray) -> np.ndarray:
         """Run detection. Returns (N, 6) [x1,y1,x2,y2,conf,cls]."""
-        results = self.model.predict(frame, threshold=self.conf_thresh)
+        # RF-DETR expects RGB; OpenCV frames are BGR
+        results = self.model.predict(frame[:, :, ::-1].copy(), threshold=self.conf_thresh)
         if results is None or len(results.xyxy) == 0:
             return np.empty((0, 6))
 
-        dets = np.column_stack([
-            results.xyxy, results.confidence, results.class_id,
-        ])
+        cls = coco_category_to_index(results.class_id)
+        dets = np.column_stack([results.xyxy, results.confidence, cls])
 
         if self.classes is not None:
-            mask = np.isin(results.class_id.astype(int), self.classes)
-            dets = dets[mask]
+            dets = dets[np.isin(cls, self.classes)]
 
         return dets
 
@@ -245,8 +267,9 @@ class RTDETRv2Detector:
         self.model = RTDetrV2ForObjectDetection.from_pretrained(model_id)
         self.model.to(self.device).eval()
         self.conf_thresh = conf_thresh
-        # RT-DETRv2 uses 1-indexed COCO classes
-        self._classes_1idx = [c + 1 for c in classes] if classes else None
+        # HF RT-DETRv2 checkpoints already use contiguous 0-indexed COCO-80
+        # labels (config.id2label[0] == "person")
+        self.classes = classes
         logger.info(f"RT-DETRv2 loaded: {model_id} on {self.device}")
 
     def detect(self, frame: np.ndarray) -> np.ndarray:
@@ -275,12 +298,10 @@ class RTDETRv2Detector:
         if len(boxes) == 0:
             return np.empty((0, 6))
 
-        # Convert 1-indexed labels to 0-indexed for consistency
-        dets = np.column_stack([boxes, scores, labels - 1])
+        dets = np.column_stack([boxes, scores, labels])
 
-        if self._classes_1idx is not None:
-            mask = np.isin(labels, self._classes_1idx)
-            dets = dets[mask]
+        if self.classes is not None:
+            dets = dets[np.isin(labels, self.classes)]
 
         return dets
 
