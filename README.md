@@ -155,25 +155,36 @@ The script runs five stages and skips any stage whose output already exists:
 4. **tracking**: online tracker → interpolation (gaps ≤ 10 frames) → offline tracklet merge (CPU)
 5. **evaluation** (val) or **packaging** (test)
 
-### Fast path: released caches (exact reproduction)
+### Fast path: released caches
 
-The [GitHub release](https://github.com/Athlitix/arcsort/releases) contains our cached detections and
-camera-motion transforms. With them, stages 1–2 are skipped:
+The [v0.1.0 release](https://github.com/Athlitix/arcsort/releases/tag/v0.1.0) contains our cached
+detections and camera-motion transforms (`arcsort-v0.1.0-caches.tar.gz`, ~40 MB). Extract it at
+the repository root and stages 1–2 are skipped:
+
+```bash
+tar xzf arcsort-v0.1.0-caches.tar.gz      # creates cache/detections/ and cache/cmc/
+```
 
 ```
 cache/
   detections/{sportsmot,dancetrack}_{val,test}/<seq>.txt
   cmc/{sportsmot,dancetrack}_{val,test}/<seq>.npy
-  embeddings/{sportsmot,dancetrack}_{val,test}/<seq>.npz   # computed by stage 3
+  embeddings/{sportsmot,dancetrack}_{val,test}/<seq>.npz   # computed by stage 3 (GPU)
 ```
 
-The release also contains our submitted test-result zips. `scripts/regression_gate.sh` reruns the
-tracking chain and checks that every output file is byte-identical to them.
+The release also contains the result files we submitted to the evaluation servers
+(`sportsmot_test.zip`, `dancetrack_test.zip`, `sportsmot_deepeiou_test.zip`). Put them in a folder,
+e.g. `reference/`, and check your run against them:
 
-Detector and ReID outputs can differ in the last bits across GPU models and library versions.
-When you regenerate the caches, expect numbers within noise of the paper, not byte-identical files.
-Our results were produced on an RTX 3060 Laptop GPU with torch 2.5.1+cu121, numpy 2.4.3,
-opencv-python 4.13.0, scipy 1.17.1 and lap 0.5.13.
+```bash
+scripts/regression_gate.sh cache reference
+```
+
+Detector and ReID outputs can differ in the last bits across GPU models and library versions, and
+a few changed embeddings can flip a few association decisions. On other hardware, expect numbers
+within noise of the paper, not byte-identical files. Our results were produced on an RTX 3060 Laptop
+GPU with torch 2.5.1+cu121, numpy 2.4.3, opencv-python 4.13.0, scipy 1.17.1 and lap 0.5.13. On that
+setup, every stage regenerates byte-identically from the raw upstream downloads.
 
 ### Datasets
 

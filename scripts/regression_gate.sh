@@ -8,15 +8,21 @@
 # Usage:
 #   scripts/regression_gate.sh CACHE_ROOT REF_ROOT [row ...]
 #
-#   CACHE_ROOT  directory with detections/, cmc_cache/, emb_cache/
-#   REF_ROOT    directory with the reference submission zips
+#   CACHE_ROOT  cache layout used by scripts/reproduce.sh:
+#               detections/<row>_test/, cmc/<dataset>_test/, embeddings/<row>_test/
+#   REF_ROOT    directory with the submitted result zips from the GitHub release
+#               (sportsmot_test.zip, dancetrack_test.zip, sportsmot_deepeiou_test.zip)
 #   row         any of: sportsmot dancetrack sportsmot_deepeiou (default: all)
+#
+# Embeddings computed on a different GPU or library version can differ in the last
+# bits, which can change a handful of association decisions; byte-identity is only
+# guaranteed with the same embedding cache.
 #
 # Env: PYTHON (default: python), WORK (default: mktemp -d)
 set -euo pipefail
 
 if [[ $# -lt 2 ]]; then
-    sed -n '2,16p' "$0"; exit 2
+    sed -n '2,22p' "$0"; exit 2
 fi
 CACHE=$(realpath "$1"); REF=$(realpath "$2"); shift 2
 ROWS=("${@:-sportsmot dancetrack sportsmot_deepeiou}")
@@ -28,9 +34,9 @@ export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 
 # row -> config | detections | cmc cache | embeddings | reference zip
 declare -A ROW=(
-    [sportsmot]="sportsmot.yaml|sportsmot_test_yolox_mix|sportsmot_test|sportsmot_test_osnet|arcsort_sportsmot_test_v8.zip"
-    [dancetrack]="dancetrack.yaml|dancetrack_test_yolox_x_norm|dancetrack_test|dancetrack_test|arcsort_dancetrack_test_v7.zip"
-    [sportsmot_deepeiou]="sportsmot_deepeiou_inputs.yaml|sportsmot_test_deepeiou|sportsmot_test|sportsmot_test_deepeiou|arcsort_sportsmot_test_v5.zip"
+    [sportsmot]="sportsmot.yaml|sportsmot_test|sportsmot_test|sportsmot_test|sportsmot_test.zip"
+    [dancetrack]="dancetrack.yaml|dancetrack_test|dancetrack_test|dancetrack_test|dancetrack_test.zip"
+    [sportsmot_deepeiou]="sportsmot_deepeiou_inputs.yaml|sportsmot_deepeiou_test|sportsmot_test|sportsmot_deepeiou_test|sportsmot_deepeiou_test.zip"
 )
 
 failed=0
@@ -40,14 +46,14 @@ for row in "${ROWS[@]}"; do
     rm -rf "$out"; mkdir -p "$out"
     echo "[$row] online tracker ($cfg)"
     "$PY" "$REPO/tools/run_cached.py" --config "$REPO/arcsort/configs/$cfg" \
-        --detections "$CACHE/detections/$det" --cmc-cache "$CACHE/cmc_cache/$cmc" \
-        --emb-cache "$CACHE/emb_cache/$emb" --output "$out/online" > "$out/online.log" 2>&1
+        --detections "$CACHE/detections/$det" --cmc-cache "$CACHE/cmc/$cmc" \
+        --emb-cache "$CACHE/embeddings/$emb" --output "$out/online" > "$out/online.log" 2>&1
     echo "[$row] interpolate"
     "$PY" "$REPO/tools/interpolate_tracks.py" --input "$out/online" --output "$out/interp" \
         --max-gap 10 > "$out/interp.log" 2>&1
     echo "[$row] merge"
     "$PY" "$REPO/tools/merge_tracklets.py" --input "$out/interp" \
-        --emb-cache "$CACHE/emb_cache/$emb" --output "$out/final" \
+        --emb-cache "$CACHE/embeddings/$emb" --output "$out/final" \
         --merge-thresh 0.85 --max-gap 300 --motion-tol inf --split > "$out/merge.log" 2>&1
 
     unzip -qo "$REF/$zip" -d "$out/ref"
