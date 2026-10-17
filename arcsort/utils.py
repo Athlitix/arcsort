@@ -24,6 +24,7 @@ def setup_logging(verbose: bool = False) -> None:
     Args:
         verbose: If True, set level to DEBUG. Otherwise INFO.
     """
+    logger.enable("arcsort")
     logger.remove()
     level = "DEBUG" if verbose else "INFO"
     logger.add(sys.stderr, level=level, format="{time:HH:mm:ss} | {level:<7} | {message}")

@@ -135,6 +135,7 @@ def main() -> None:
              "<= the lowest track_high_thresh you intend to sweep)",
     )
     args = parser.parse_args()
+    logger.enable("arcsort")
 
     reid_cfg = dict(DEFAULT_CONFIG["reid"])
     if args.config:

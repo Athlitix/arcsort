@@ -8,9 +8,16 @@ were verified against the upstream repositories on 2026-07-24.
 
 | Component | Location | License | Notes |
 |---|---|---|---|
-| OSNet backbone (deep-person-reid, Kaiyang Zhou) | `external/osnet/` | MIT — Copyright (c) 2018 Kaiyang Zhou (`external/osnet/LICENSE`) | vendored for TorchScript export in `tools/convert_osnet_weights.py` |
-| TrackEval (Jonathon Luiten) | `external/TrackEval/` | MIT — Copyright (c) 2020 Jonathon Luiten | evaluation only |
-| YOLOX (Megvii) | `external/YOLOX/` | Apache-2.0 | detection inference for cached detections |
+| OSNet backbone (deep-person-reid, Kaiyang Zhou) | `third_party/osnet/` | MIT — Copyright (c) 2018 Kaiyang Zhou (`third_party/osnet/LICENSE`) | used by `tools/convert_osnet_weights.py` for TorchScript export |
+
+## External code (cloned separately into `external/`, not distributed here)
+
+| Component | License | Used for |
+|---|---|---|
+| TrackEval (Jonathon Luiten) | MIT | evaluation (`tools/evaluate.py`) |
+| YOLOX (Megvii) | Apache-2.0 | detection caching (`tools/cache_detections.py`) |
+| FastReID via Deep-OC-SORT | Apache-2.0 (FastReID) | one-time ReID weight conversion (`tools/convert_reid_weights.py`) |
+| Ultralytics (optional) | AGPL-3.0 | optional detector backend in `arcsort/detection.py` and `tools/cache_detections_ultralytics.py`; not a dependency of the tracker |
 
 ## Code lineage (algorithms adapted/reimplemented, not verbatim copies)
 

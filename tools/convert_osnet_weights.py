@@ -1,6 +1,6 @@
 """Convert an OSNet ReID state dict to a standalone TorchScript module.
 
-Wraps the OSNet backbone (architecture vendored in external/osnet/osnet.py,
+Wraps the OSNet backbone (architecture vendored in third_party/osnet/osnet.py,
 from KaiyangZhou/deep-person-reid, MIT license) with its preprocessing so
 the traced module matches EmbeddingComputer's input contract: float32 RGB
 crops in [0, 255], CHW. Normalization (/255 + ImageNet mean/std) happens
@@ -11,7 +11,7 @@ weights_only extraction step); this tool loads it with weights_only=True.
 
 Usage:
     PYTHONPATH=. python tools/convert_osnet_weights.py \
-        --input deep_eiou_assets/models/sports_osnet_clean.pth \
+        --input weights/sportsmot/sports_osnet_clean.pth \
         --output weights/sportsmot/sports_osnet_traced.pt \
         --num-classes 616
 
@@ -31,7 +31,7 @@ import torch
 from loguru import logger
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "external" / "osnet"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "third_party" / "osnet"))
 
 
 class OSNetWithPreproc(torch.nn.Module):

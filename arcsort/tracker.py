@@ -341,6 +341,52 @@ class ARCTracker:
             "per_frame": [],
         }
 
+    @classmethod
+    def from_preset(
+        cls,
+        name: str = "sportsmot",
+        reid_weights: str | None = None,
+        **overrides,
+    ) -> ARCTracker:
+        """Build a tracker from a shipped preset (see ``arcsort.configs``).
+
+        Args:
+            name: Preset name, e.g. "sportsmot" or "dancetrack".
+            reid_weights: Path to a TorchScript ReID model (see README:
+                Weights). When None, appearance features are disabled and
+                the tracker runs motion-only on CPU.
+            **overrides: Top-level config keys to override; dict values
+                are merged into the preset's sub-config of the same name.
+
+        Returns:
+            A configured ARCTracker.
+        """
+        from pathlib import Path
+
+        from arcsort.configs import load_preset
+
+        config = load_preset(name)
+        for key, value in overrides.items():
+            if isinstance(value, dict) and isinstance(config.get(key), dict):
+                config[key] = {**config[key], **value}
+            else:
+                config[key] = value
+
+        uses_reid = config.get("use_reid") or config.get("use_gated_reid")
+        if reid_weights is not None:
+            config["reid"] = {
+                **config.get("reid", {}),
+                "weights": str(Path(reid_weights).expanduser().resolve()),
+            }
+        elif uses_reid:
+            logger.info(
+                f"Preset '{name}' uses ReID but no reid_weights were given; "
+                "running motion-only. Pass reid_weights=... to enable appearance."
+            )
+            config["use_reid"] = False
+            config["use_gated_reid"] = False
+        return cls(config)
+
     def reset(self) -> None:
         """Reset tracker state for a new sequence."""
         self.tracks = []

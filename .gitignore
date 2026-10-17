@@ -62,3 +62,7 @@ demo_vids/
 emb_cache/
 cmc_cache/
 *.zip
+
+# Reproduction inputs/outputs (see README)
+cache/
+outputs/

@@ -39,7 +39,7 @@ for row in "${ROWS[@]}"; do
     out="$WORK/$row"
     rm -rf "$out"; mkdir -p "$out"
     echo "[$row] online tracker ($cfg)"
-    "$PY" "$REPO/tools/run_cached.py" --config "$REPO/configs/paper/$cfg" \
+    "$PY" "$REPO/tools/run_cached.py" --config "$REPO/arcsort/configs/$cfg" \
         --detections "$CACHE/detections/$det" --cmc-cache "$CACHE/cmc_cache/$cmc" \
         --emb-cache "$CACHE/emb_cache/$emb" --output "$out/online" > "$out/online.log" 2>&1
     echo "[$row] interpolate"

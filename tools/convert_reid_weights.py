@@ -1,11 +1,12 @@
 """One-time conversion of FastReID weights to TorchScript format.
 
-Loads a FastReID SBS model using the _reference/Deep-OC-SORT FastReID
-library, traces it with TorchScript, and saves a standalone .pt file
-that can be loaded without any FastReID dependency.
+Loads a FastReID SBS model using the FastReID copy bundled with Deep-OC-SORT
+(clone github.com/GerardMaggiolino/Deep-OC-SORT to external/Deep-OC-SORT, or
+point DEEP_OCSORT_ROOT at a checkout), traces it with TorchScript, and saves
+a standalone .pt file that can be loaded without any FastReID dependency.
 
-This script is the ONLY place that imports from _reference/. The runtime
-code (arcsort/reid.py) loads only the traced TorchScript model.
+This script is the ONLY place that imports FastReID. The runtime code
+(arcsort/reid.py) loads only the traced TorchScript model.
 
 Usage:
     PYTHONPATH=. python tools/convert_reid_weights.py \
@@ -23,6 +24,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -32,8 +34,10 @@ from loguru import logger
 from arcsort.utils import setup_logging
 
 # Reference FastReID paths
-_REF_ROOT = Path(__file__).resolve().parent.parent.parent
-_DEEP_OC_SORT = _REF_ROOT / "_reference" / "Deep-OC-SORT"
+_DEEP_OC_SORT = Path(os.environ.get(
+    "DEEP_OCSORT_ROOT",
+    Path(__file__).resolve().parent.parent / "external" / "Deep-OC-SORT",
+))
 _FASTREID_CONFIGS = _DEEP_OC_SORT / "external" / "fast_reid" / "configs"
 
 CONFIG_MAP = {
@@ -62,7 +66,7 @@ def convert(
     if not config_file.exists():
         raise FileNotFoundError(
             f"FastReID config not found: {config_file}. "
-            f"Ensure _reference/Deep-OC-SORT is available."
+            f"Clone Deep-OC-SORT to external/Deep-OC-SORT or set DEEP_OCSORT_ROOT."
         )
 
     # Add FastReID to path (only for this conversion script)
