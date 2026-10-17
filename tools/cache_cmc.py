@@ -9,7 +9,7 @@ Usage:
     python tools/cache_cmc.py \
         --frames data/DanceTrack/val \
         --output cmc_cache/dancetrack_val/ \
-        --config configs/arcsort_byte_cmc_imm_hybrid.yaml
+        --config arcsort/configs/sportsmot.yaml
 
 Output format:
     One .npy file per sequence containing a dict:

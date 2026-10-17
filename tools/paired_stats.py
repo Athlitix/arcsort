@@ -3,9 +3,8 @@
 Pairs sequences by name across two run directories (each holding a
 pedestrian_detailed.csv), then reports per-sequence deltas (B - A),
 win/loss/tie counts, an exact two-sided sign test, and a seeded paired
-bootstrap 95% CI on the mean delta. This is the C6 evidence: a rung of
-the ablation ladder must beat its predecessor per-sequence, not just on
-the pooled score.
+bootstrap 95% CI on the mean delta, so a change can be shown to win
+per-sequence and not just on the pooled score.
 
 The sequence sets must match exactly - a mismatch aborts loudly rather
 than silently comparing different subsets.
@@ -14,8 +13,8 @@ Usage:
     python tools/paired_stats.py DIR_A DIR_B [--metric HOTA] \
         [--n-boot 10000] [--seed 0]
     python tools/paired_stats.py \
-        results/ablation_sportsmot_val/20_eiou_fixed07_interp \
-        results/ablation_sportsmot_val/22_eiou_adaptive_s2_interp
+        outputs/run_a/final \
+        outputs/run_b/final
 """
 
 from __future__ import annotations

@@ -19,7 +19,7 @@ Usage:
     PYTHONPATH=. python tools/cache_embeddings.py \
         --detections detections/dancetrack_val_yolox_x_norm/ \
         --frames data/DanceTrack/val \
-        --config configs/arcsort_full.yaml \
+        --config arcsort/configs/dancetrack.yaml \
         --output emb_cache/dancetrack_val_yolox_x_norm/
 """
 

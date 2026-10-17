@@ -1,5 +1,8 @@
+# ARC-SORT preset for DanceTrack (paper: DanceTrack test 62.1 HOTA).
+# Same association settings as sportsmot.yaml except the EIoU expansion
+# scale (1.0) and the FastReID SBS-S50 appearance model (see README: Weights).
 tracker:
-  name: ARC-SORT Full (BYTE + CMC + IMM + Hybrid + ReID)
+  name: ARC-SORT DanceTrack
   track_high_thresh: 0.6
   track_low_thresh: 0.1
   new_track_thresh: 0.7

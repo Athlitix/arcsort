@@ -2,7 +2,7 @@
 
 Implements a constant-velocity Kalman filter operating in [cx, cy, s, r]
 space (center, scale/area, aspect ratio). This is the baseline filter
-from OC-SORT. The IMM-KF (Phase 4) will replace this when enabled.
+from OC-SORT; the IMM-KF (imm_kalman_filter.py) replaces it when use_imm is set.
 
 State vector (7D): [cx, cy, s, r, v_cx, v_cy, v_s]
 Measurement vector (4D): [cx, cy, s, r]

@@ -15,7 +15,7 @@ Purpose: diagnose which sport drives the val->test generalization gap.
 
 Usage:
     python tools/per_sport_report.py RESULTS_DIR [RESULTS_DIR ...]
-    python tools/per_sport_report.py results/ablation_sportsmot_val/22_eiou_adaptive_s2_interp \
+    python tools/per_sport_report.py outputs/sportsmot_val/final \
         --out per_sport.md
 """
 
@@ -86,7 +86,7 @@ def load_per_seq_metrics(results_dir: Path) -> dict[str, dict[str, float]]:
 
     Args:
         results_dir: A single run directory (e.g.
-            results/ablation_sportsmot_val/22_eiou_adaptive_s2_interp).
+            outputs/sportsmot_val/final).
 
     Returns:
         Mapping of sequence name to metric dict (HOTA/DetA/AssA/IDF1 in

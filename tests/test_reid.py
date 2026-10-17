@@ -1,4 +1,4 @@
-"""Tests for ReID integration (Phase 6).
+"""Tests for ReID integration.
 
 Tests embedding similarity, EMA embedding updates, adaptive weighting,
 association with ReID fusion, IMM gating logic, and uncertainty weighting.

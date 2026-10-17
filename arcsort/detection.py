@@ -126,8 +126,15 @@ class YOLOXDetector:
         if str(yolox_dir) not in sys.path:
             sys.path.insert(0, str(yolox_dir))
 
-        from yolox.exp import get_exp
-        from yolox.utils import fuse_model
+        try:
+            from yolox.exp import get_exp
+            from yolox.utils import fuse_model
+        except ImportError as e:
+            raise ImportError(
+                "The YOLOX backend needs the YOLOX package: clone "
+                "https://github.com/Megvii-BaseDetection/YOLOX and put it on "
+                "PYTHONPATH (it also needs `pip install tabulate`)."
+            ) from e
 
         self.test_size = test_size
         self.conf_thresh = conf_thresh

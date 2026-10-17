@@ -1,9 +1,9 @@
 """Re-identification (ReID) embedding computation for ARC-SORT.
 
 Provides the EmbeddingComputer class which lazy-loads a TorchScript-traced
-FastReID SBS ResNeSt-50 model and computes L2-normalized 2048-dim appearance
-embeddings from detection crops. Also provides IMM-gating helpers for
-Phase 6B (selective ReID activation based on IMM model probabilities).
+ReID model (FastReID SBS-S50 or sports OSNet) and computes L2-normalized
+appearance embeddings from detection crops. Also provides IMM-gating helpers
+(selective ReID activation based on IMM model probabilities).
 
 The model is loaded as a standalone TorchScript file with zero external
 dependencies. Weights must first be converted from FastReID format using

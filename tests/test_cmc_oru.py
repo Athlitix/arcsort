@@ -1,4 +1,4 @@
-"""Tests for Phase 7: CMC-corrected ORU.
+"""Tests for CMC-corrected ORU.
 
 Tests that the ORU virtual trajectory is properly warped when CMC affine
 transforms are provided during the observation gap. Covers both the

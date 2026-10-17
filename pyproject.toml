@@ -42,7 +42,8 @@ yolo = ["ultralytics>=8.0"]
 dev = ["pytest>=7"]
 
 [project.urls]
-Homepage = "https://github.com/Athlitix/arcsort"
+Homepage = "https://athlitix.github.io/arcsort/"
+Repository = "https://github.com/Athlitix/arcsort"
 Paper = "https://arxiv.org/abs/2610.22306"
 
 [tool.setuptools]

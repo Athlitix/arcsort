@@ -104,8 +104,7 @@ DEFAULT_CONFIG = {
         "use_ocr": True,
         # CMC-corrected ORU: replay virtual observations through the
         # accumulated camera-motion affines (only fires when the camera
-        # actually moved during the gap). Disable to reproduce the
-        # Phase 6 configuration on static-camera data.
+        # actually moved during the gap). Disable for plain OC-SORT ORU.
         "use_cmc_oru": True,
         "delta_t": 3,
         "inertia_weight": 0.2,
@@ -258,7 +257,7 @@ class ARCTracker:
         else:
             self.cmc = None
 
-        # Store affine transforms per frame for ORU correction (Phase 7)
+        # Store affine transforms per frame for CMC-corrected ORU
         self.affine_transforms: dict[int, np.ndarray] = {}
 
         self.delta_t = ocsort_cfg["delta_t"]

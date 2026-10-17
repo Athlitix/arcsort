@@ -3,7 +3,9 @@
 **Adaptive, Robust, Compensated Multi-Object Tracking with Interacting Multiple Models**
 
 [![arXiv](https://img.shields.io/badge/arXiv-2610.22306-b31b1b.svg)](https://arxiv.org/abs/2610.22306)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/Athlitix/arcsort/blob/main/LICENSE)
+[![Project page](https://img.shields.io/badge/project-page-1f4fd8.svg)](https://athlitix.github.io/arcsort/)
+[![PyPI](https://img.shields.io/pypi/v/arcsort.svg)](https://pypi.org/project/arcsort/)
 
 ARC-SORT is a tracking-by-detection multi-object tracker for fast, non-linear motion under a
 moving camera, such as athletes in sports broadcasts. Nothing is trained. It works with any detector and
@@ -85,11 +87,50 @@ for frame in video:                                   # BGR numpy image
   (or `use_cmc=False` for a static camera).
 - **ReID** needs the `reid` extra, a CUDA GPU and converted weights (see [Weights](#weights)).
   Without it the tracker runs motion-only.
-- **Detection scores matter**: thresholds (`track_high_thresh` 0.6, `new_track_thresh` 0.7) are
-  calibrated for YOLOX-X. If your detector's scores run lower, lower them.
+- **Score thresholds**: the defaults (`track_high_thresh` 0.6, `new_track_thresh` 0.7) worked
+  best for every detector we tested. Lowering them reduced HOTA for ARC-SORT and for the
+  baselines alike. Run the detector itself with a low confidence floor (e.g. 0.05) so that BYTE's
+  second stage sees low-score boxes.
 - **supervision** users: `arcsort.interop.from_supervision(detections)` and
   `to_supervision(tracks)` convert to and from `sv.Detections` (`pip install arcsort[viz]`).
-- Start a new video with `tracker.reset()`.
+- Start a new video with `tracker.reset()`. Several trackers can run in one process (e.g. one per
+  camera); each numbers its own tracks.
+
+A detector factory is included for common backends (`pip install arcsort[yolo]` for Ultralytics;
+RF-DETR and transformers are installed separately):
+
+```python
+from arcsort.detection import create_detector
+
+detector = create_detector("yolo11x.pt", imgsz=1280, conf_thresh=0.05, classes=[0])
+# also: "rfdetr-large", "PekingU/rtdetr_v2_r101vd", "rtdetr-x.pt" (use imgsz=640), YOLOX
+dets = detector.detect(frame)    # (N, 6), class ids in COCO-80 order (person = 0)
+```
+
+### Tested detectors
+
+ARC-SORT was run unchanged (`from_preset("sportsmot")` with live ReID and CMC) behind the
+detectors below. The test used three SportsMOT validation clips (basketball, football, volleyball;
+1,616 frames). Every tracker got identical detections. Baselines are the Roboflow
+[`trackers`](https://github.com/roboflow/trackers) implementations with default settings.
+
+| Detector | Library | ByteTrack | BoT-SORT | ARC-SORT online | ARC-SORT + offline merge |
+|---|---|---|---|---|---|
+| YOLOv8x | Ultralytics | 57.0 | 59.4 | **62.2** | **66.2** |
+| YOLOv10x | Ultralytics | 61.8 | **63.9** | 61.6 | **65.0** |
+| YOLO11x | Ultralytics | 57.5 | **60.3** | 58.6 | **62.6** |
+| YOLO12x | Ultralytics | 56.7 | 59.8 | **60.9** | **65.7** |
+| YOLO26x | Ultralytics | 57.0 | 57.0 | **59.8** | **64.3** |
+| YOLOv13x | [iMoonLab fork](https://github.com/iMoonLab/yolov13) | 57.2 | 58.6 | **60.2** | **61.5** |
+| RT-DETRv2-R101 | transformers | 57.9 | 58.7 | **59.8** | **64.0** |
+| RF-DETR-L | rfdetr | 65.2 | 65.9 | **67.6** | **71.6** |
+| YOLOX-X (SportsMOT-trained) | YOLOX | 77.0 | 78.6 | **81.4** | **84.7** |
+
+HOTA; bold marks the best online and best overall result per row. This is a compatibility check,
+not a benchmark: three clips are too few to rank trackers. COCO detectors also detect referees
+and spectators, who are not labelled in SportsMOT, so their absolute scores are low for every
+tracker. Run Ultralytics RT-DETR at its training size (`imgsz=640`); at 1280 it detects only a
+third of the players.
 
 ## Reproducing the paper
 
@@ -189,6 +230,7 @@ tools/            caching, tracking, post-processing, evaluation, FPS benchmark,
 scripts/          reproduce.sh, regression_gate.sh
 tests/            unit tests (pytest)
 third_party/      vendored OSNet architecture (MIT)
+docs/             project page (GitHub Pages)
 ```
 
 ## Citation
@@ -204,7 +246,7 @@ third_party/      vendored OSNet architecture (MIT)
 
 ## License
 
-Apache License 2.0; see [LICENSE](LICENSE) and [NOTICE](NOTICE). ARC-SORT builds on OC-SORT,
-ByteTrack, BoT-SORT and Deep OC-SORT; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Apache License 2.0; see [LICENSE](https://github.com/Athlitix/arcsort/blob/main/LICENSE) and [NOTICE](https://github.com/Athlitix/arcsort/blob/main/NOTICE). ARC-SORT builds on OC-SORT,
+ByteTrack, BoT-SORT and Deep OC-SORT; see [THIRD_PARTY_NOTICES.md](https://github.com/Athlitix/arcsort/blob/main/THIRD_PARTY_NOTICES.md).
 Pretrained weights and datasets are subject to their own licenses and terms, which may restrict
 commercial use independently of this code's license.

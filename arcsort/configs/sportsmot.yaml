@@ -1,9 +1,6 @@
-# ARC-SORT SportsMOT base config.
-# Starting point: arcsort_full.yaml (DanceTrack-tuned) with SportsMOT
-# adjustments: SportsMOT is 25 FPS, 720p broadcast footage with fast
-# non-linear athlete motion and moving cameras -- the domain the IMM/CMC
-# machinery targets. Thresholds start at Deep-EIoU-comparable values
-# (high 0.6, low 0.1) and are tuned on val only.
+# ARC-SORT preset for sports broadcast footage (paper: SportsMOT test 81.82 HOTA).
+# SportsMOT is 25 FPS, 720p footage with fast non-linear athlete motion and a
+# moving camera. All values were chosen on the validation split only.
 
 tracker:
   name: "ARC-SORT SportsMOT"
@@ -19,8 +16,8 @@ tracker:
   use_byte: true
   use_cmc: true
   use_imm: true
-  # EIoU replaces hybrid distance as the stage-1 spatial metric
-  # (val sweep 2026-07-16: adaptive EIoU 77.26 > hybrid 77.13 > fixed EIoU 76.20)
+  # Uncertainty-adaptive Expansion IoU is the stage-1 spatial metric
+  # (on val it beat both the hybrid distance and fixed-expansion EIoU)
   use_hybrid_distance: false
   use_eiou: true
   use_reid: true
@@ -34,9 +31,8 @@ tracker:
     max_expansion: 1.2
 
   reid:
-    # Sports-domain OSNet (Deep-EIoU release, traced via
-    # tools/convert_osnet_weights.py). Val sweep 2026-07-16: OSNet w=1.25
-    # (77.97) > OSNet w=1.5 > FastReID-dance w=1.5 (77.13)
+    # Sports-domain OSNet from the Deep-EIoU release, converted with
+    # tools/convert_osnet_weights.py (see README: Weights)
     weights: "weights/sportsmot/sports_osnet_traced.pt"
     crop_size: [128, 256]
     w_assoc_emb: 1.25

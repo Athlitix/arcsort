@@ -1,6 +1,7 @@
-# v5 test config: arcsort_sportsmot.yaml + Route-B calibration for Deep-EIoU's
-# detector (track_high 0.5, new_track 0.6, match_thresh 0.2; 2026-07-17 sweep).
-# Reconstructed 2026-07-22 (v4 ran unsaved config — snapshot configs per run from now on).
+# ARC-SORT on Deep-EIoU's released SportsMOT detections and embeddings
+# (paper: 80.31 HOTA, +3.1 over Deep-EIoU on identical inputs).
+# Same as sportsmot.yaml except the detector-calibration thresholds, which
+# match Deep-EIoU's detector: track_high 0.5, new_track 0.6, match 0.2.
 tracker:
   name: ARC-SORT SportsMOT
   track_high_thresh: 0.5

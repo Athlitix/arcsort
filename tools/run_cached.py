@@ -11,21 +11,19 @@ Output format (per line):
     frame_id, track_id, x1, y1, w, h, confidence, -1, -1, -1
 
 Usage:
-    python tools/run_cached.py --config configs/baseline_ocsort.yaml \
-        --detections detections/dancetrack_val_yolox_s/ \
-        --output results/baseline_ocsort/
+    # Cached CMC + cached embeddings (fast, CPU only; see scripts/reproduce.sh)
+    python tools/run_cached.py --config arcsort/configs/sportsmot.yaml \
+        --detections cache/detections/sportsmot_val/ \
+        --cmc-cache cache/cmc/sportsmot_val/ \
+        --emb-cache cache/embeddings/sportsmot_val/ \
+        --output outputs/sportsmot_val/online/
 
-    # With CMC (requires frame images OR cached CMC transforms):
-    python tools/run_cached.py --config configs/arcsort_byte_cmc.yaml \
-        --detections detections/dancetrack_val_yolox_x_norm/ \
+    # Compute CMC from frames instead of a cache:
+    python tools/run_cached.py --config arcsort/configs/dancetrack.yaml \
+        --detections cache/detections/dancetrack_val/ \
         --frames data/DanceTrack/val \
-        --output results/arcsort_byte_cmc/
-
-    # With cached CMC (fast -- no frame loading):
-    python tools/run_cached.py --config configs/arcsort_byte_cmc.yaml \
-        --detections detections/dancetrack_val_yolox_x_norm/ \
-        --cmc-cache cmc_cache/dancetrack_val/ \
-        --output results/arcsort_byte_cmc/
+        --emb-cache cache/embeddings/dancetrack_val/ \
+        --output outputs/dancetrack_val/online/
 """
 
 from __future__ import annotations

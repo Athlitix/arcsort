@@ -12,37 +12,31 @@ Usage:
     # Online: real-time from webcam
     PYTHONPATH=. python tools/pipeline.py --source 0 \
         --detector yolo11m.pt \
-        --config configs/arcsort_full.yaml \
+        --config arcsort/configs/sportsmot.yaml \
         --mode online --show
 
     # Batch: process video file with full pipeline
     PYTHONPATH=. python tools/pipeline.py --source match.mp4 \
         --detector yolo11x.pt \
-        --config configs/arcsort_full.yaml \
+        --config arcsort/configs/sportsmot.yaml \
         --mode batch --save output.mp4 --show
-
-    # Lightweight (no ReID/CMC, fast)
-    PYTHONPATH=. python tools/pipeline.py --source match.mp4 \
-        --detector yolo11s.pt \
-        --config configs/baseline_ocsort.yaml \
-        --mode online --show
 
     # From pre-cached detections (skip detection)
     PYTHONPATH=. python tools/pipeline.py --source video.mp4 \
         --detections cached_dets.txt \
-        --config configs/arcsort_full.yaml \
+        --config arcsort/configs/sportsmot.yaml \
         --save output.mp4
 
     # Side-by-side: original + annotated
     PYTHONPATH=. python tools/pipeline.py --source match.mp4 \
         --detector yolo11x.pt \
-        --config configs/arcsort_full.yaml \
+        --config arcsort/configs/sportsmot.yaml \
         --mode online --show --side-by-side
 
     # Save tracking results in MOT format for evaluation
     PYTHONPATH=. python tools/pipeline.py --source match.mp4 \
         --detector yolo11x.pt \
-        --config configs/arcsort_full.yaml \
+        --config arcsort/configs/sportsmot.yaml \
         --save output.mp4 --save-mot results.txt
 """
 

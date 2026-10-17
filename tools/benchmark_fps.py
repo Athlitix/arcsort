@@ -7,13 +7,13 @@ and full-pipeline FPS (with ReID embedding computation).
 Usage:
     # Tracker-only (no frame loading, no ReID):
     python tools/benchmark_fps.py \
-        --config configs/arcsort_full.yaml \
+        --config arcsort/configs/dancetrack.yaml \
         --detections detections/dancetrack_val_yolox_x_norm/ \
         --no-reid
 
     # Full pipeline (with ReID + CMC):
     python tools/benchmark_fps.py \
-        --config configs/arcsort_full.yaml \
+        --config arcsort/configs/dancetrack.yaml \
         --detections detections/dancetrack_val_yolox_x_norm/ \
         --frames data/DanceTrack/val \
         --cmc-cache cmc_cache/dancetrack_val/

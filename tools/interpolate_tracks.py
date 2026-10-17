@@ -136,7 +136,11 @@ def main() -> None:
 
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    txt_files = sorted(in_dir.glob("*.txt"))
+    # Sequence results only -- skip TrackEval artifacts living alongside
+    txt_files = [
+        f for f in sorted(in_dir.glob("*.txt"))
+        if not f.name.startswith("pedestrian_")
+    ]
     if not txt_files:
         raise FileNotFoundError(f"No .txt files found in {in_dir}")
 

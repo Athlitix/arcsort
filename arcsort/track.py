@@ -42,8 +42,8 @@ class STrack:
     loss, and eventual removal. Stores observation history for OC-SORT's
     observation-centric algorithms (OCM velocity, ORU re-update, OCR recovery).
 
-    Supports both the standard constant-velocity KF (Phase 1) and the
-    IMM-KF with CV/CA/CT models (Phase 4) via the use_imm flag.
+    Supports both the standard constant-velocity KF and the IMM-KF with
+    CV/CA/CT models via the use_imm flag.
     """
 
     def __init__(
