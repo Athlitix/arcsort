@@ -1,0 +1,64 @@
+# Virtual environment
+arcsort-env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+
+# Weights and data (large files, not tracked in git)
+weights/
+data/
+detections/
+
+# Experiment outputs
+results/
+experiments/
+
+# Cached CMC transforms
+cmc_cache/
+
+# External tools (cloned repos, not tracked)
+external/
+
+# Model files (large binaries)
+*.pt
+*.pth
+*.pth.tar
+*.onnx
+*.engine
+
+# Claude / AI assistant local artifacts (not tracked)
+claude.md
+.claude/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Demo videos (large binaries, keep scripts and results)
+demo_vids/*.mp4
+demo_vids/demo_metrics.json
+
+# Paper now tracked (WACV 2027 campaign, 2026-07-22)
+
+
+# Large cached assets (WACV 2027 campaign)
+deep_eiou_assets/
+demo_vids/
+emb_cache/
+cmc_cache/
+*.zip
