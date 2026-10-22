@@ -45,6 +45,14 @@ BENCHMARK_CONFIGS = {
         "seqmap_suffix": "_seqmap.txt",
         "seqmap_dir": None,
     },
+    # SoccerNet-Tracking labels every object with class -1, so the MOTChallenge
+    # pedestrian preprocessing would drop all GT; the official SoccerNet
+    # evaluation also runs with preprocessing off
+    "soccernet": {
+        "seqmap_suffix": "_seqmap.txt",
+        "seqmap_dir": None,
+        "do_preproc": False,
+    },
 }
 
 
@@ -59,7 +67,7 @@ def run_evaluation(
     """Run TrackEval via Python API.
 
     Args:
-        benchmark: Benchmark name (dancetrack, mot17, mot20, sportsmot).
+        benchmark: Benchmark name (dancetrack, mot17, mot20, sportsmot, soccernet).
         split: Dataset split (train, val, test).
         gt_folder: Path to ground truth data.
         trackers_folder: Path to tracker results.
@@ -98,6 +106,7 @@ def run_evaluation(
 
     # Add seqmap if available
     cfg = BENCHMARK_CONFIGS[benchmark]
+    dataset_config["DO_PREPROC"] = cfg.get("do_preproc", True)
     if cfg["seqmap_suffix"]:
         # DanceTrack/SportsMOT: seqmap next to GT folder (e.g., val_seqmap.txt)
         seqmap = gt_folder.parent / f"{split}{cfg['seqmap_suffix']}"
