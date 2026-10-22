@@ -47,7 +47,8 @@ for row in "${ROWS[@]}"; do
     echo "[$row] online tracker ($cfg)"
     "$PY" "$REPO/tools/run_cached.py" --config "$REPO/arcsort/configs/$cfg" \
         --detections "$CACHE/detections/$det" --cmc-cache "$CACHE/cmc/$cmc" \
-        --emb-cache "$CACHE/embeddings/$emb" --output "$out/online" > "$out/online.log" 2>&1
+        --emb-cache "$CACHE/embeddings/$emb" --output "$out/online" \
+        --output-box kalman > "$out/online.log" 2>&1
     echo "[$row] interpolate"
     "$PY" "$REPO/tools/interpolate_tracks.py" --input "$out/online" --output "$out/interp" \
         --max-gap 10 > "$out/interp.log" 2>&1

@@ -17,7 +17,9 @@
 #   5. evaluate (val) or package (test)
 #
 # Env overrides: DATA (default: data), CACHE (default: cache), OUT (default: outputs),
-#                PYTHON (default: python), DEEP_EIOU_ASSETS (default: external/Deep-EIoU)
+#                PYTHON (default: python), DEEP_EIOU_ASSETS (default: external/Deep-EIoU),
+#                OUTPUT_BOX (default: kalman, which reproduces arXiv:2610.22306 v1;
+#                "detection" is the library default since 0.1.1)
 set -euo pipefail
 
 usage() { sed -n '2,22p' "$0"; exit 2; }
@@ -96,7 +98,8 @@ fi
 rm -rf "$RUN"
 step "online tracker ($CONFIG)"
 "$PY" tools/run_cached.py --config "$CONFIG" --detections "$DETS" \
-    --cmc-cache "$CMC" --emb-cache "$EMBS" --output "$RUN/online"
+    --cmc-cache "$CMC" --emb-cache "$EMBS" --output "$RUN/online" \
+    --output-box "${OUTPUT_BOX:-kalman}"
 step "interpolate (max gap 10)"
 "$PY" tools/interpolate_tracks.py --input "$RUN/online" --output "$RUN/interp" --max-gap 10
 step "offline tracklet merge"

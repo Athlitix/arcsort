@@ -206,6 +206,11 @@ def main() -> None:
              "loading needed.",
     )
     parser.add_argument(
+        "--output-box", choices=("detection", "kalman"), default=None,
+        help="Override the config's output_box. Use 'kalman' to reproduce "
+             "the paper results.",
+    )
+    parser.add_argument(
         "--mot17-triplicate", action="store_true",
         help="After tracking, copy each MOT17-XX.txt result to "
              "MOT17-XX-DPM.txt, MOT17-XX-FRCNN.txt, MOT17-XX-SDP.txt "
@@ -220,6 +225,8 @@ def main() -> None:
     setup_logging(args.verbose)
 
     config = load_config(args.config)
+    if args.output_box:
+        config["output_box"] = args.output_box
     logger.info(f"Loaded config from {args.config}")
     logger.debug(f"Config: {config}")
 

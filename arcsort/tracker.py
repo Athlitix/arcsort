@@ -33,6 +33,10 @@ DEFAULT_CONFIG = {
     "match_thresh": 0.3,
     "byte_match_thresh": 0.5,
     "min_hits": 3,
+    # Box reported for each output track: "detection" (the box matched
+    # this frame) or "kalman" (the filtered state estimate). The paper
+    # results (arXiv:2610.22306) were produced with "kalman".
+    "output_box": "detection",
     "aspect_ratio_thresh": 0.0,
     "min_box_area": 0.0,
     "use_byte": False,
@@ -173,6 +177,9 @@ class ARCTracker:
         self.match_thresh = self.cfg["match_thresh"]
         self.byte_match_thresh = self.cfg["byte_match_thresh"]
         self.min_hits = self.cfg["min_hits"]
+        self.output_box = self.cfg["output_box"]
+        if self.output_box not in ("detection", "kalman"):
+            raise ValueError(f"output_box must be 'detection' or 'kalman', got {self.output_box!r}")
         self.aspect_ratio_thresh = self.cfg.get("aspect_ratio_thresh", 0.0)
         self.min_box_area = self.cfg.get("min_box_area", 0.0)
         self.use_byte = self.cfg["use_byte"]
@@ -1172,7 +1179,12 @@ class ARCTracker:
             is_warmup = self.frame_count <= self.min_hits
 
             if is_recent and (has_min_hits or is_warmup):
-                bbox = track.get_state()
+                # A recent track was matched this frame, so its last
+                # observation is the detection it was matched to
+                if self.output_box == "detection":
+                    bbox = track.last_observation[:4]
+                else:
+                    bbox = track.get_state()
                 results.append(np.concatenate([bbox, [track.track_id + 1]]))
 
         if len(results) == 0:

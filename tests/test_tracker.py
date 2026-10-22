@@ -764,3 +764,39 @@ def test_eiou_tracks_maintain_ids():
 
     assert run(True) == 1        # EIoU bridges the jumps
     assert run(False) > 1        # plain IoU fragments
+
+
+# ---------------------------------------------------------------------------
+# Output box
+# ---------------------------------------------------------------------------
+
+def _run_jittered(output_box: str) -> tuple[np.ndarray, np.ndarray]:
+    """Track one box moving with jitter; return the last detection and output."""
+    tracker = ARCTracker({"output_box": output_box})
+    rng = np.random.default_rng(0)
+    out = np.empty((0, 5))
+    for t in range(10):
+        box = np.array([100 + 5 * t, 100, 150 + 5 * t, 200]) + rng.normal(0, 2, 4)
+        out = tracker.update(_dets(tuple(box)))
+    return box, out
+
+
+def test_output_box_default_is_detection():
+    assert DEFAULT_CONFIG["output_box"] == "detection"
+
+
+def test_output_box_detection_returns_matched_box():
+    box, out = _run_jittered("detection")
+    assert len(out) == 1
+    np.testing.assert_allclose(out[0, :4], box)
+
+
+def test_output_box_kalman_returns_filtered_state():
+    box, out = _run_jittered("kalman")
+    assert len(out) == 1
+    assert not np.allclose(out[0, :4], box)
+
+
+def test_output_box_invalid_rejected():
+    with pytest.raises(ValueError, match="output_box"):
+        ARCTracker({"output_box": "smoothed"})
