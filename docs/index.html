@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ARC-SORT</title>
-<meta name="description" content="ARC-SORT: a training-free multi-object tracker that measures its own uncertainty. 81.82 HOTA on SportsMOT, 62.1 on DanceTrack, works with any detector.">
+<meta name="description" content="ARC-SORT: a training-free multi-object tracker that measures its own uncertainty. 81.82 HOTA on SportsMOT, 62.1 on DanceTrack, 86.1 on SoccerNet with ground-truth boxes; works with any detector.">
 <meta property="og:title" content="ARC-SORT: Adaptive, Robust, Compensated Multi-Object Tracking">
 <meta property="og:description" content="Training-free tracking-by-detection for fast motion under moving cameras. 81.82 HOTA on SportsMOT with the fewest identity switches on the leaderboard.">
 <meta property="og:image" content="https://athlitix.github.io/arcsort/assets/demo_basketball.jpg">
@@ -307,6 +307,60 @@ footer p { margin: 0 0 8px; }
 
 <section class="alt">
   <div class="wrap">
+    <h2>Against Roboflow trackers, same inputs</h2>
+    <p class="lede">Every tracker below received identical inputs. Baselines are Roboflow
+      <a href="https://github.com/roboflow/trackers">trackers</a> 2.6.1 at default settings with each sequence's
+      real frame rate; ARC-SORT is 0.1.1 with its stock preset. Online trackers, no post-processing, scored with TrackEval.</p>
+    <h3>SoccerNet-Tracking test, ground-truth boxes as input</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Tracker</th><th>HOTA</th><th>AssA</th><th>IDF1</th><th>IDs</th></tr>
+        </thead>
+        <tbody>
+          <tr class="ours"><td>ARC-SORT</td><td class="best">86.1</td><td class="best">75.8</td><td class="best">81.0</td><td class="best">1516</td></tr>
+          <tr><td>BoT-SORT</td><td>84.5</td><td>73.7</td><td>79.3</td><td>2941</td></tr>
+          <tr><td>C-BIoU</td><td>84.1</td><td>71.8</td><td>78.2</td><td>3700</td></tr>
+          <tr><td>ByteTrack</td><td>84.0</td><td>71.7</td><td>78.1</td><td>4016</td></tr>
+          <tr><td>SORT</td><td>81.6</td><td>69.7</td><td>76.2</td><td>2996</td></tr>
+          <tr><td>OC-SORT</td><td>78.4</td><td>65.0</td><td>72.5</td><td>3255</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Same split and input as Roboflow's results page; our SORT, ByteTrack, OC-SORT and BoT-SORT runs match their published
+      numbers within 0.05 HOTA. Roboflow reports McByte (SAM/Cutie mask propagation) at 85.0. ARC-SORT used the SportsMOT preset
+      with no SoccerNet tuning.</p>
+    <h3 style="margin-top:32px">Validation splits (HOTA)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Tracker</th><th>SportsMOT, YOLOX-X</th><th>DanceTrack, YOLOX-X</th><th>SportsMOT, GT boxes</th><th>DanceTrack, GT boxes</th></tr>
+        </thead>
+        <tbody>
+          <tr class="ours"><td>ARC-SORT</td><td class="best">79.8</td><td class="best">59.1</td><td class="best">90.1</td><td class="best">84.7</td></tr>
+          <tr><td>BoT-SORT</td><td>76.5</td><td>53.5</td><td>87.9</td><td>79.9</td></tr>
+          <tr><td>C-BIoU</td><td>75.2</td><td>53.6</td><td>87.4</td><td>79.9</td></tr>
+          <tr><td>ByteTrack</td><td>75.0</td><td>50.5</td><td>87.5</td><td>80.1</td></tr>
+          <tr><td>OC-SORT</td><td>72.5</td><td>52.0</td><td>83.8</td><td>77.8</td></tr>
+          <tr><td>SORT</td><td>71.8</td><td>45.2</td><td>86.3</td><td>78.7</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Where it does not lead: on MOT17 (pedestrians, mostly static cameras; identical YOLOX-X detections, nothing tuned)
+      ARC-SORT is mid-pack at 70.8 HOTA, behind BoT-SORT (72.5) and C-BIoU (72.2). Its gains come from moving cameras and fast,
+      non-linear motion.</p>
+    <div class="stack-video">
+      <figure class="media" style="margin:24px 0 0">
+        <video src="assets/bytetrack_vs_arcsort.mp4" poster="assets/bytetrack_vs_arcsort.jpg" muted loop playsinline controls preload="none" aria-label="ByteTrack (top) and ARC-SORT (bottom) on the same volleyball clip and detections: 31 versus 15 identity switches"></video>
+      </figure>
+      <p class="caption">ByteTrack (top) and ARC-SORT (bottom) on one SportsMOT volleyball clip, same detections. ID switches are counted
+        against ground truth (31 vs 15); red rings mark a switch, green the same player keeping their ID. Trails are camera-compensated.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
     <h2>Works with any detector</h2>
     <p class="lede">ARC-SORT takes boxes and scores. We ran it unchanged behind nine detectors from five libraries,
       on three SportsMOT validation clips, with every tracker receiving identical detections. HOTA:</p>
@@ -316,25 +370,25 @@ footer p { margin: 0 0 8px; }
           <tr><th>Detector</th><th>ByteTrack</th><th>BoT-SORT</th><th>ARC-SORT online</th><th>ARC-SORT + offline merge</th></tr>
         </thead>
         <tbody>
-          <tr><td>YOLOv8x</td><td>57.0</td><td>59.4</td><td class="best">62.2</td><td class="best">66.2</td></tr>
-          <tr><td>YOLOv10x</td><td>61.8</td><td class="best">63.9</td><td>61.6</td><td class="best">65.0</td></tr>
-          <tr><td>YOLO11x</td><td>57.5</td><td class="best">60.3</td><td>58.6</td><td class="best">62.6</td></tr>
-          <tr><td>YOLO12x</td><td>56.7</td><td>59.8</td><td class="best">60.9</td><td class="best">65.7</td></tr>
-          <tr><td>YOLO26x</td><td>57.0</td><td>57.0</td><td class="best">59.8</td><td class="best">64.3</td></tr>
-          <tr><td>YOLOv13x</td><td>57.2</td><td>58.6</td><td class="best">60.2</td><td class="best">61.5</td></tr>
-          <tr><td>RT-DETRv2-R101</td><td>57.9</td><td>58.7</td><td class="best">59.8</td><td class="best">64.0</td></tr>
-          <tr><td>RF-DETR-L</td><td>65.2</td><td>65.9</td><td class="best">67.6</td><td class="best">71.6</td></tr>
-          <tr><td>YOLOX-X (SportsMOT-trained)</td><td>77.0</td><td>78.6</td><td class="best">81.4</td><td class="best">84.7</td></tr>
+          <tr><td>YOLOv8x</td><td>57.0</td><td>59.4</td><td class="best">63.1</td><td class="best">67.1</td></tr>
+          <tr><td>YOLOv10x</td><td>61.8</td><td class="best">63.9</td><td>62.5</td><td class="best">65.9</td></tr>
+          <tr><td>YOLO11x</td><td>57.5</td><td class="best">60.3</td><td>59.4</td><td class="best">63.4</td></tr>
+          <tr><td>YOLO12x</td><td>56.7</td><td>59.8</td><td class="best">61.8</td><td class="best">66.7</td></tr>
+          <tr><td>YOLO26x</td><td>57.0</td><td>57.0</td><td class="best">60.7</td><td class="best">65.2</td></tr>
+          <tr><td>YOLOv13x</td><td>57.2</td><td>58.6</td><td class="best">61.1</td><td class="best">62.5</td></tr>
+          <tr><td>RT-DETRv2-R101</td><td>57.9</td><td>58.7</td><td class="best">60.4</td><td class="best">64.6</td></tr>
+          <tr><td>RF-DETR-L</td><td>65.2</td><td>65.9</td><td class="best">68.6</td><td class="best">72.6</td></tr>
+          <tr><td>YOLOX-X (SportsMOT-trained)</td><td>77.0</td><td>78.6</td><td class="best">82.8</td><td class="best">86.2</td></tr>
         </tbody>
       </table>
     </div>
     <p class="note">A compatibility check, not a benchmark: three clips are too few to rank trackers. COCO detectors also find referees
       and spectators, who are not labelled in SportsMOT, so absolute scores are low for every tracker. Baselines are the
-      Roboflow <a href="https://github.com/roboflow/trackers">trackers</a> implementations with default settings.</p>
+      Roboflow <a href="https://github.com/roboflow/trackers">trackers</a> 2.6.1 implementations with default settings; ARC-SORT is 0.1.1.</p>
   </div>
 </section>
 
-<section>
+<section class="alt">
   <div class="wrap">
     <h2>Get started</h2>
     <p class="lede">The core tracker needs only NumPy, SciPy and OpenCV and runs on CPU. ReID, detectors and visualization are optional extras.</p>
@@ -347,12 +401,15 @@ tracker = ARCTracker.from_preset(<span class="s">"sportsmot"</span>)        <spa
 <span class="k">for</span> frame <span class="k">in</span> video:                                    <span class="c"># BGR numpy image</span>
     dets = my_detector(frame)                          <span class="c"># (N, 6): x1, y1, x2, y2, score, class_id</span>
     tracks = tracker.update(dets, frame)               <span class="c"># (M, 5): x1, y1, x2, y2, track_id</span></pre></div>
+    <p>Since 0.1.1 tracks report the detection box they matched (higher HOTA in every setting we tested), and
+      <code>Visualizer(motion_compensated_trails=True)</code> keeps trails fixed to the scene while the camera moves.
+      See the <a href="https://github.com/Athlitix/arcsort/blob/main/CHANGELOG.md">changelog</a>.</p>
     <p>One command per paper row reproduces the reported results exactly from released caches: see the
       <a href="https://github.com/Athlitix/arcsort#reproducing-the-paper">reproduction guide</a>.</p>
   </div>
 </section>
 
-<section class="alt" id="citation">
+<section id="citation">
   <div class="wrap">
     <h2>Citation</h2>
     <div class="code"><button class="copy" data-target="bibtex">Copy</button><pre id="bibtex">@article{adari2026arcsort,
