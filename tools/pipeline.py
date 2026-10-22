@@ -273,7 +273,9 @@ def run_online(
         fps_smooth = 0.9 * fps_smooth + 0.1 * fps if fps_smooth > 0 else fps
 
         # Visualize
-        annotated = visualizer.annotate(frame, tracks, fps=fps_smooth)
+        annotated = visualizer.annotate(
+            frame, tracks, fps=fps_smooth, camera_motion=tracker.camera_motion,
+        )
 
         if args.side_by_side:
             output = Visualizer.side_by_side(frame, annotated)
@@ -370,7 +372,7 @@ def run_batch(
         dets = cached_dets.get(frame_id, np.empty((0, 6)))
         tracks = tracker.update(dets, frame=frame)
 
-        annotated = visualizer.annotate(frame, tracks)
+        annotated = visualizer.annotate(frame, tracks, camera_motion=tracker.camera_motion)
 
         if args.side_by_side:
             output = Visualizer.side_by_side(frame, annotated)
@@ -489,6 +491,11 @@ def main() -> None:
         help="Disable track trails",
     )
     viz_group.add_argument(
+        "--motion-trails", action="store_true",
+        help="Keep trails fixed to the scene while the camera moves, using the "
+             "tracker's camera-motion estimate (needs CMC on and arcsort[viz])",
+    )
+    viz_group.add_argument(
         "--no-labels", action="store_true",
         help="Disable track ID labels",
     )
@@ -547,6 +554,7 @@ def main() -> None:
     visualizer = Visualizer(
         trace_length=trace_length,
         show_labels=not args.no_labels,
+        motion_compensated_trails=args.motion_trails,
     )
 
     # --- Run pipeline ---

@@ -32,8 +32,9 @@ dependencies = [
 [project.optional-dependencies]
 # Appearance (ReID) features; install a CUDA build of torch for GPU use.
 reid = ["torch>=2.1"]
-# Visualization and supervision.Detections interop.
-viz = ["supervision>=0.20"]
+# Visualization (motion-compensated trails use Roboflow trackers) and
+# supervision.Detections interop.
+viz = ["supervision>=0.26.1", "trackers>=2.6"]
 # Evaluation tooling (TrackEval itself is cloned into external/).
 eval = ["tqdm"]
 # Optional detector backend. Ultralytics is AGPL-3.0: installing it brings

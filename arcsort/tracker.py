@@ -396,6 +396,16 @@ class ARCTracker:
             config["use_gated_reid"] = False
         return cls(config)
 
+    @property
+    def camera_motion(self) -> np.ndarray | None:
+        """2x3 affine from the previous frame to the current one, or None.
+
+        Set by the last ``update()`` when camera-motion compensation ran.
+        ``Visualizer(motion_compensated_trails=True)`` uses it to keep
+        trails fixed to the scene while the camera moves.
+        """
+        return self.affine_transforms.get(self.frame_count)
+
     def reset(self) -> None:
         """Reset tracker state for a new sequence."""
         self.tracks = []
