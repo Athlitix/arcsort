@@ -176,6 +176,11 @@ not run it.
 | OC-SORT | 72.5 | 52.0 | 83.8 | 77.8 |
 | SORT | 71.8 | 45.2 | 86.3 | 78.7 |
 
+**Where it does not lead.** On MOT17 (pedestrians, mostly static cameras; Roboflow's val split,
+identical YOLOX-X detections, nothing tuned) ARC-SORT is mid-pack at 70.8 HOTA, behind BoT-SORT
+(72.5) and C-BIoU (72.2) and ahead of OC-SORT (70.3), ByteTrack (68.1) and SORT (61.4). Its gains
+come from moving cameras and fast, non-linear motion.
+
 ## Reproducing the paper
 
 One command per row:
