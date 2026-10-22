@@ -10,7 +10,7 @@ objects with non-linear motion under moving camera conditions.
 
 from __future__ import annotations
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from loguru import logger
 

@@ -91,8 +91,16 @@ for frame in video:                                   # BGR numpy image
   best for every detector we tested. Lowering them reduced HOTA for ARC-SORT and for the
   baselines alike. Run the detector itself with a low confidence floor (e.g. 0.05) so that BYTE's
   second stage sees low-score boxes.
+- **Output boxes**: since 0.1.1 each track reports the detection box it was matched to this frame
+  (`output_box="detection"`, the default). `output_box="kalman"` reports the filtered state
+  estimate instead, which is what 0.1.0 and the arXiv v1 results used. The detection box scored
+  higher in every setting we tested (see [Comparison with Roboflow trackers](#comparison-with-roboflow-trackers)).
 - **supervision** users: `arcsort.interop.from_supervision(detections)` and
   `to_supervision(tracks)` convert to and from `sv.Detections` (`pip install arcsort[viz]`).
+- **Trails with a moving camera**: plain trails also record the camera's motion. Use
+  `Visualizer(motion_compensated_trails=True)` and pass `camera_motion=tracker.camera_motion` to
+  `annotate()` to keep trails fixed to the scene (Roboflow `trackers`' `MotionAwareTraceAnnotator`,
+  installed with `arcsort[viz]`), or `tools/pipeline.py --motion-trails`.
 - Start a new video with `tracker.reset()`. Several trackers can run in one process (e.g. one per
   camera); each numbers its own tracks.
 
@@ -112,25 +120,61 @@ dets = detector.detect(frame)    # (N, 6), class ids in COCO-80 order (person = 
 ARC-SORT was run unchanged (`from_preset("sportsmot")` with live ReID and CMC) behind the
 detectors below. The test used three SportsMOT validation clips (basketball, football, volleyball;
 1,616 frames). Every tracker got identical detections. Baselines are the Roboflow
-[`trackers`](https://github.com/roboflow/trackers) implementations with default settings.
+[`trackers`](https://github.com/roboflow/trackers) 2.6.1 implementations with default settings;
+ARC-SORT is 0.1.1.
 
 | Detector | Library | ByteTrack | BoT-SORT | ARC-SORT online | ARC-SORT + offline merge |
 |---|---|---|---|---|---|
-| YOLOv8x | Ultralytics | 57.0 | 59.4 | **62.2** | **66.2** |
-| YOLOv10x | Ultralytics | 61.8 | **63.9** | 61.6 | **65.0** |
-| YOLO11x | Ultralytics | 57.5 | **60.3** | 58.6 | **62.6** |
-| YOLO12x | Ultralytics | 56.7 | 59.8 | **60.9** | **65.7** |
-| YOLO26x | Ultralytics | 57.0 | 57.0 | **59.8** | **64.3** |
-| YOLOv13x | [iMoonLab fork](https://github.com/iMoonLab/yolov13) | 57.2 | 58.6 | **60.2** | **61.5** |
-| RT-DETRv2-R101 | transformers | 57.9 | 58.7 | **59.8** | **64.0** |
-| RF-DETR-L | rfdetr | 65.2 | 65.9 | **67.6** | **71.6** |
-| YOLOX-X (SportsMOT-trained) | YOLOX | 77.0 | 78.6 | **81.4** | **84.7** |
+| YOLOv8x | Ultralytics | 57.0 | 59.4 | **63.1** | **67.1** |
+| YOLOv10x | Ultralytics | 61.8 | **63.9** | 62.5 | **65.9** |
+| YOLO11x | Ultralytics | 57.5 | **60.3** | 59.4 | **63.4** |
+| YOLO12x | Ultralytics | 56.7 | 59.8 | **61.8** | **66.7** |
+| YOLO26x | Ultralytics | 57.0 | 57.0 | **60.7** | **65.2** |
+| YOLOv13x | [iMoonLab fork](https://github.com/iMoonLab/yolov13) | 57.2 | 58.6 | **61.1** | **62.5** |
+| RT-DETRv2-R101 | transformers | 57.9 | 58.7 | **60.4** | **64.6** |
+| RF-DETR-L | rfdetr | 65.2 | 65.9 | **68.6** | **72.6** |
+| YOLOX-X (SportsMOT-trained) | YOLOX | 77.0 | 78.6 | **82.8** | **86.2** |
 
 HOTA; bold marks the best online and best overall result per row. This is a compatibility check,
 not a benchmark: three clips are too few to rank trackers. COCO detectors also detect referees
 and spectators, who are not labelled in SportsMOT, so their absolute scores are low for every
 tracker. Run Ultralytics RT-DETR at its training size (`imgsz=640`); at 1280 it detects only a
 third of the players.
+
+## Comparison with Roboflow trackers
+
+Every tracker below got identical inputs. Baselines are Roboflow
+[`trackers`](https://github.com/roboflow/trackers) 2.6.1 at default settings with each
+sequence's real frame rate, the same protocol as their benchmark runner. ARC-SORT is 0.1.1 with
+its stock preset. Online trackers only (no interpolation or offline merge), scored with TrackEval.
+
+**SoccerNet-Tracking test (49 sequences), ground-truth boxes as input.** This is the split and
+input Roboflow reports; our SORT, ByteTrack, OC-SORT and BoT-SORT runs match their published
+numbers within 0.05 HOTA. ARC-SORT uses the `sportsmot` preset with no SoccerNet tuning.
+
+| Tracker | HOTA | AssA | IDF1 | IDs |
+|---|---|---|---|---|
+| **ARC-SORT** | **86.1** | **75.8** | **81.0** | **1516** |
+| BoT-SORT | 84.5 | 73.7 | 79.3 | 2941 |
+| C-BIoU | 84.1 | 71.8 | 78.2 | 3700 |
+| ByteTrack | 84.0 | 71.7 | 78.1 | 4016 |
+| SORT | 81.6 | 69.7 | 76.2 | 2996 |
+| OC-SORT | 78.4 | 65.0 | 72.5 | 3255 |
+
+Roboflow reports McByte, which adds SAM/Cutie mask propagation, at 85.0 HOTA on this split; we did
+not run it.
+
+**Validation splits (HOTA).** "YOLOX-X" means the same cached detections for every tracker;
+"GT boxes" means ground-truth boxes with confidence 1.0.
+
+| Tracker | SportsMOT, YOLOX-X | DanceTrack, YOLOX-X | SportsMOT, GT boxes | DanceTrack, GT boxes |
+|---|---|---|---|---|
+| **ARC-SORT** | **79.8** | **59.1** | **90.1** | **84.7** |
+| BoT-SORT | 76.5 | 53.5 | 87.9 | 79.9 |
+| C-BIoU | 75.2 | 53.6 | 87.4 | 79.9 |
+| ByteTrack | 75.0 | 50.5 | 87.5 | 80.1 |
+| OC-SORT | 72.5 | 52.0 | 83.8 | 77.8 |
+| SORT | 71.8 | 45.2 | 86.3 | 78.7 |
 
 ## Reproducing the paper
 
@@ -143,6 +187,10 @@ scripts/reproduce.sh sportsmot test           # writes outputs/arcsort_sportsmot
 scripts/reproduce.sh dancetrack test          # writes outputs/arcsort_dancetrack_test.zip
 scripts/reproduce.sh sportsmot_deepeiou test  # Deep-EIoU's inputs
 ```
+
+These commands reproduce arXiv:2610.22306 v1 exactly, so the script defaults to
+`OUTPUT_BOX=kalman`. With the 0.1.1 default (`OUTPUT_BOX=detection scripts/reproduce.sh ...`)
+the validation rows become 86.295 (SportsMOT, from 84.957) and 61.329 (DanceTrack, from 60.617).
 
 Upload test zips to the [SportsMOT](https://www.codabench.org/competitions/13077/) or
 [DanceTrack](https://www.codabench.org/competitions/14885/) CodaBench server.
