@@ -6,6 +6,7 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/Athlitix/arcsort/blob/main/LICENSE)
 [![Project page](https://img.shields.io/badge/project-page-1f4fd8.svg)](https://athlitix.github.io/arcsort/)
 [![PyPI](https://img.shields.io/pypi/v/arcsort.svg)](https://pypi.org/project/arcsort/)
+[![Papers with Code: SOTA on SportsMOT](https://paperswithcode.co/api/v1/papers/2610.22306/leaderboard-badge.svg?eval=40772&live=1)](https://paperswithcode.co/api/v1/papers/2610.22306/leaderboard-badge-link?eval=40772)
 
 ARC-SORT is a tracking-by-detection multi-object tracker for fast, non-linear motion under a
 moving camera, such as athletes in sports broadcasts. Nothing is trained. It works with any detector and
