@@ -161,21 +161,29 @@ Every tracker below got identical inputs. Baselines are Roboflow
 sequence's real frame rate, the same protocol as their benchmark runner. ARC-SORT is 0.1.1 with
 its stock preset. Online trackers only (no interpolation or offline merge), scored with TrackEval.
 
-**SoccerNet-Tracking test (49 sequences), ground-truth boxes as input.** This is the split and
-input Roboflow reports; our SORT, ByteTrack, OC-SORT and BoT-SORT runs match their published
-numbers within 0.05 HOTA. ARC-SORT uses the `sportsmot` preset with no SoccerNet tuning.
+**SoccerNet-Tracking 2022 test (49 sequences), oracle detections.** We follow the protocol of
+McByte ([Stanczyk et al., CVPRW 2025](https://arxiv.org/abs/2506.01373)): SoccerNet-Tracking has no
+validation split, so results are on the test split; the input is the oracle detections the dataset ships
+in each sequence's `det/det.txt` (identical to the ground-truth boxes, confidence 1.0); scoring is local
+TrackEval against the public test ground truth (MOTChallenge format, pedestrian preprocessing off, since
+SoccerNet labels every object class -1). This measures association quality only. It is the protocol of the
+[Papers with Code SoccerNet Tracking 2022 (test) leaderboard](https://paperswithcode.co/benchmark/soccernet-tracking-2022-test?task=object-tracking&eval=28734)
+and of Roboflow's SoccerNet benchmark; our SORT, ByteTrack, OC-SORT and BoT-SORT runs match Roboflow's published
+numbers within 0.05 HOTA. ARC-SORT uses the `sportsmot` preset (OSNet ReID) with no SoccerNet tuning, online
+tracker only.
 
-| Tracker | HOTA | AssA | IDF1 | IDs |
-|---|---|---|---|---|
-| **ARC-SORT** | **86.1** | **75.8** | **81.0** | **1516** |
-| BoT-SORT | 84.5 | 73.7 | 79.3 | 2941 |
-| C-BIoU | 84.1 | 71.8 | 78.2 | 3700 |
-| ByteTrack | 84.0 | 71.7 | 78.1 | 4016 |
-| SORT | 81.6 | 69.7 | 76.2 | 2996 |
-| OC-SORT | 78.4 | 65.0 | 72.5 | 3255 |
+| Tracker | HOTA | AssA | IDF1 | MOTA | IDs |
+|---|---|---|---|---|---|
+| **ARC-SORT** | **86.1** | **75.8** | **81.0** | 97.8 | **1516** |
+| McByte (from its paper; SAM/Cutie mask propagation) | 85.0 | — | 79.9 | 96.8 | — |
+| BoT-SORT | 84.5 | 73.7 | 79.3 | 96.6 | 2941 |
+| C-BIoU | 84.1 | 71.8 | 78.2 | 98.1 | 3700 |
+| ByteTrack | 84.0 | 71.7 | 78.1 | 97.8 | 4016 |
+| SORT | 81.6 | 69.7 | 76.2 | 95.1 | 2996 |
+| OC-SORT | 78.4 | 65.0 | 72.5 | 94.2 | 3255 |
 
-Roboflow reports McByte, which adds SAM/Cutie mask propagation, at 85.0 HOTA on this split; we did
-not run it.
+Rows without a source note are our runs of Roboflow `trackers` 2.6.1. Reproduce with
+`tools/evaluate.py --benchmark soccernet` on tracker outputs for `data/SoccerNet/test`.
 
 **Validation splits (HOTA).** "YOLOX-X" means the same cached detections for every tracker;
 "GT boxes" means ground-truth boxes with confidence 1.0.

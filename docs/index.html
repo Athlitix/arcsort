@@ -330,9 +330,10 @@ footer p { margin: 0 0 8px; }
         </tbody>
       </table>
     </div>
-    <p class="note">Same split and input as Roboflow's results page; our SORT, ByteTrack, OC-SORT and BoT-SORT runs match their published
-      numbers within 0.05 HOTA. Roboflow reports McByte (SAM/Cutie mask propagation) at 85.0. ARC-SORT used the SportsMOT preset
-      with no SoccerNet tuning.</p>
+    <p class="note">Protocol of McByte (CVPRW 2025) and of the Papers with Code SoccerNet Tracking 2022 (test) leaderboard: test split
+      (SoccerNet-Tracking has no validation split), the oracle detections shipped in <code>det/det.txt</code>, local TrackEval. McByte
+      (SAM/Cutie mask propagation) reports 85.0 HOTA in its paper. Our SORT, ByteTrack, OC-SORT and BoT-SORT runs match Roboflow's
+      published numbers within 0.05 HOTA. ARC-SORT used the SportsMOT preset with no SoccerNet tuning.</p>
     <h3 style="margin-top:32px">Validation splits (HOTA)</h3>
     <div class="table-wrap">
       <table>
