@@ -28,23 +28,35 @@ The idea: **the tracker measures its own uncertainty, and that measurement decid
 
 ## Results
 
-Test-set numbers are from the official evaluation servers (CodaBench).
+Test-set numbers are from the official evaluation servers (CodaBench). ARC-SORT 0.1.1, full pipeline
+(online tracker, interpolation, offline tracklet merge), default `output_box="detection"`:
 
 | Benchmark (test) | HOTA | AssA | DetA | MOTA | IDF1 | IDs |
 |---|---|---|---|---|---|---|
-| SportsMOT | **81.82** | 76.24 | 87.84 | 97.09 | 88.47 | 1414 |
-| SportsMOT, Deep-EIoU's detections + embeddings | 80.31 | 74.14 | 87.04 | 96.65 | 86.92 | 1320 |
-| DanceTrack | **62.1** | 48.2 | 80.3 | 92.4 | 66.5 | — |
+| SportsMOT | **83.04** | 77.53 | 89.01 | 97.06 | 88.45 | 1458 |
+| DanceTrack | **63.06** | 49.04 | 81.34 | 92.28 | 66.42 | 1624 |
 
-As of August 2026, SportsMOT has the fewest identity switches of all 69 leaderboard entries.
-On Deep-EIoU's own inputs, ARC-SORT is +3.1 HOTA over Deep-EIoU (77.2).
+On SportsMOT this ranks 10th by HOTA on the CodaBench leaderboard (October 2026).
+
+The paper ([arXiv v1](https://arxiv.org/abs/2610.22306)) reports the 0.1.0 output (`output_box="kalman"`),
+reproducible exactly with `scripts/reproduce.sh`:
+
+| Benchmark (test) | HOTA | AssA | DetA | MOTA | IDF1 | IDs |
+|---|---|---|---|---|---|---|
+| SportsMOT | 81.82 | 76.24 | 87.84 | 97.09 | 88.47 | 1414 |
+| SportsMOT, Deep-EIoU's detections + embeddings | 80.31 | 74.14 | 87.04 | 96.65 | 86.92 | 1320 |
+| DanceTrack | 62.1 | 48.2 | 80.3 | 92.4 | 66.5 | — |
+
+As of August 2026, the paper's SportsMOT submission had the fewest identity switches of the 69
+leaderboard entries; a few newer entries have since gone lower. On Deep-EIoU's own inputs, ARC-SORT is
++3.1 HOTA over Deep-EIoU (77.2).
 
 Validation numbers, reproducible locally (pooled TrackEval):
 
-| Benchmark (val) | HOTA | AssA | IDF1 |
-|---|---|---|---|
-| SportsMOT | 84.96 | 82.96 | 92.79 |
-| DanceTrack | 60.62 | 47.44 | 64.80 |
+| Benchmark (val) | HOTA, 0.1.1 | AssA | IDF1 | HOTA, paper (`kalman`) |
+|---|---|---|---|---|
+| SportsMOT | 86.30 | 84.34 | 92.77 | 84.96 |
+| DanceTrack | 61.33 | 48.07 | 64.74 | 60.62 |
 
 ## Installation
 

@@ -11,6 +11,7 @@
 - **Motion-compensated trails**: `Visualizer(motion_compensated_trails=True)` with the new
   `ARCTracker.camera_motion` property; `tools/pipeline.py --motion-trails`. Uses Roboflow
   `trackers` (now part of the optional `viz` extra).
+- Official test servers (October 2026): SportsMOT 83.04 HOTA (from 81.82), DanceTrack 63.06 (from 62.1).
 - `tools/run_cached.py --output-box`; `tools/evaluate.py --benchmark soccernet`.
 - README: comparison with Roboflow `trackers` 2.6.1 (SoccerNet test, SportsMOT/DanceTrack val with
   detections and GT boxes); tested-detectors table rerun with 0.1.1.

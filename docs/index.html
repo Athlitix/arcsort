@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ARC-SORT</title>
-<meta name="description" content="ARC-SORT: a training-free multi-object tracker that measures its own uncertainty. 81.82 HOTA on SportsMOT, 62.1 on DanceTrack, 86.1 on SoccerNet with ground-truth boxes; works with any detector.">
+<meta name="description" content="ARC-SORT: a training-free multi-object tracker that measures its own uncertainty. 83.04 HOTA on SportsMOT, 63.1 on DanceTrack, 86.1 on SoccerNet with ground-truth boxes; works with any detector.">
 <meta property="og:title" content="ARC-SORT: Adaptive, Robust, Compensated Multi-Object Tracking">
-<meta property="og:description" content="Training-free tracking-by-detection for fast motion under moving cameras. 81.82 HOTA on SportsMOT with the fewest identity switches on the leaderboard.">
+<meta property="og:description" content="Training-free tracking-by-detection for fast motion under moving cameras. 83.04 HOTA on SportsMOT and 63.1 on DanceTrack test; best of Roboflow's trackers on SoccerNet.">
 <meta property="og:image" content="https://athlitix.github.io/arcsort/assets/demo_basketball.jpg">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
@@ -212,12 +212,12 @@ footer p { margin: 0 0 8px; }
       ARC-SORT is a tracking-by-detection tracker that trains nothing and runs in real time. Its design
       rule: the tracker measures how uncertain it is, and that measurement decides how it acts.</p>
     <div class="stats">
-      <div class="stat"><div class="num">81.82</div><div class="lbl">HOTA on SportsMOT test</div></div>
-      <div class="stat"><div class="num">62.1</div><div class="lbl">HOTA on DanceTrack test, same settings</div></div>
-      <div class="stat"><div class="num">1414</div><div class="lbl">ID switches: fewest of 69 SportsMOT entries<sup>†</sup></div></div>
+      <div class="stat"><div class="num">83.04</div><div class="lbl">HOTA on SportsMOT test<sup>†</sup></div></div>
+      <div class="stat"><div class="num">63.1</div><div class="lbl">HOTA on DanceTrack test, same settings<sup>†</sup></div></div>
+      <div class="stat"><div class="num">86.1</div><div class="lbl">HOTA on SoccerNet test with ground-truth boxes, ahead of every Roboflow tracker</div></div>
       <div class="stat"><div class="num">~50 FPS</div><div class="lbl">tracker with live ReID on a laptop RTX 3060 (detector excluded)</div></div>
     </div>
-    <p class="note">† Evaluation-server leaderboard as of August 2026.</p>
+    <p class="note">† ARC-SORT 0.1.1 on the official evaluation servers (October 2026). The paper (arXiv v1) reports 81.82 and 62.1 with the 0.1.0 box output.</p>
   </div>
 </section>
 
@@ -292,15 +292,18 @@ footer p { margin: 0 0 8px; }
           <tr><td>GTA (offline, on Deep-EIoU)</td><td class="muted">no</td><td>81.0</td><td>74.5</td><td>88.2</td><td>96.3</td><td>86.5</td><td>2737</td></tr>
           <tr><td>TDLP</td><td>yes</td><td>81.9</td><td>76.3</td><td>88.0</td><td>95.8</td><td>87.5</td><td class="muted">n/a</td></tr>
           <tr><td>MeMoSORT</td><td>yes</td><td>82.1</td><td>75.6</td><td>89.3</td><td>97.0</td><td>86.4</td><td class="muted">n/a</td></tr>
-          <tr class="ours"><td>ARC-SORT on Deep-EIoU's detections + embeddings</td><td>no</td><td>80.31</td><td>74.14</td><td>87.04</td><td class="muted">n/a</td><td>86.92</td><td>1320</td></tr>
-          <tr class="ours"><td>ARC-SORT (full)</td><td>no</td><td>81.82</td><td>76.24</td><td>87.84</td><td>97.09</td><td>88.47</td><td class="best">1414</td></tr>
+          <tr><td>NOOUGAT (offline)</td><td>yes</td><td>85.6</td><td class="muted">n/a</td><td class="muted">n/a</td><td class="muted">n/a</td><td class="muted">n/a</td><td class="muted">n/a</td></tr>
+          <tr class="ours"><td>ARC-SORT on Deep-EIoU's detections + embeddings (paper)</td><td>no</td><td>80.31</td><td>74.14</td><td>87.04</td><td class="muted">n/a</td><td>86.92</td><td>1320</td></tr>
+          <tr class="ours"><td>ARC-SORT (full, paper v1)</td><td>no</td><td>81.82</td><td>76.24</td><td>87.84</td><td>97.09</td><td>88.47</td><td>1414</td></tr>
+          <tr class="ours"><td>ARC-SORT 0.1.1 (full)</td><td>no</td><td>83.04</td><td>77.53</td><td>89.01</td><td>97.06</td><td>88.45</td><td>1458</td></tr>
           <tr class="sep"><td colspan="8">Foundation-model tier</td></tr>
           <tr><td>SAM 3 + Deep-EIoU (mask propagation)</td><td class="muted">no</td><td>87.2</td><td>84.2</td><td class="muted">n/a</td><td>98.1</td><td>93.6</td><td class="muted">n/a</td></tr>
         </tbody>
       </table>
     </div>
     <p class="note">On Deep-EIoU's own public detections and embeddings, ARC-SORT scores 80.31 HOTA, +3.1 over Deep-EIoU, so the gain comes from
-      association alone. On DanceTrack test ARC-SORT reaches 62.1 HOTA with the same association settings. More rows and
+      association alone. On DanceTrack test ARC-SORT reaches 63.1 HOTA with the same association settings (paper v1: 62.1).
+      0.1.1 differs from the paper only in reporting the matched detection box instead of the Kalman state. More rows and
       ablations are in the paper.</p>
   </div>
 </section>
